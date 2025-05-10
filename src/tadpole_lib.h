@@ -270,7 +270,7 @@ bool copy_file(const char* fileName, const char* outputName, char* buffer)
   if(!result)
   {
     SM_ERROR("Failed opening File: %s", outputName);
-    return false;
+    return false; 
   }
   
   fclose(outputFile);
