@@ -4,12 +4,11 @@
 
 #include "game.h"
 
-#include "platform.h"
-
 #define APIENTRY
 #define GL_GLEXT_PROTOTYPES
 #include "glcorearb.h"
 
+#include "platform.h"
 #ifdef _WIN32
 #include "win32_platform.cpp"
 #endif
@@ -31,47 +30,45 @@ void reload_game_dll(BumpAllocator* transientStorage);
 
 int main()
 {
-    BumpAllocator transientStorage = make_bump_allocator(MB(50));
-    BumpAllocator persistentStorage = make_bump_allocator(MB(50));
+  BumpAllocator transientStorage = make_bump_allocator(MB(50));
+  BumpAllocator persistentStorage = make_bump_allocator(MB(50));
 
-    input = (Input*)bump_alloc(&persistentStorage, sizeof(Input));
-    if(!input)
-    {
-      SM_ERROR("Failed to allocate Input");
-      return -1;
-    }
+  input = (Input*)bump_alloc(&persistentStorage, sizeof(Input));
+  if(!input)
+  {
+    SM_ERROR("Failed to allocate Input");
+    return -1;
+  }
 
-    renderData = (RenderData*)bump_alloc(&persistentStorage, sizeof(RenderData));
-    if(!renderData)
-    {
-      SM_ERROR("Failed to allocate RenderData");
-      return -1;
-    }
+  renderData = (RenderData*)bump_alloc(&persistentStorage, sizeof(RenderData));
+  if(!renderData)
+  {
+    SM_ERROR("Failed to allocate RenderData");
+    return -1;
+  }
 
-    platform_create_window(1200, 720, "Tadpole Motor");
-    input->screenSizeX = 1200;
-    input->screenSizeY = 720;
-    
-    gl_init(&transientStorage);
+  platform_create_window(1200, 720, "Schnitzel Motor");
+  input->screenSizeX = 1200;
+  input->screenSizeY = 720;
 
-    while (running)
-    {
-        platform_update_window();
-        update_game(renderData, input);
-        gl_render();
+  gl_init(&transientStorage);
 
-        platform_swap_buffers();
+  while(running)
+  {
+    reload_game_dll(&transientStorage);
 
-        transientStorage.used = 0;
-        // SM_TRACE("Test");
-        // SM_WARN("Test");
-        // SM_ERROR("Test");
-        // SM_ASSERT(false, "Assertion Not Hit!");
-    }
+    // Update
+    platform_update_window();
+    update_game(renderData, input);
+    gl_render();
 
-    return 0;
+    platform_swap_buffers();
+
+    transientStorage.used = 0;
+  }
+
+  return 0;
 }
-
 
 void update_game(RenderData* renderDataIn, Input* inputIn)
 {
@@ -109,3 +106,6 @@ void reload_game_dll(BumpAllocator* transientStorage)
     lastEditTimestampGameDLL = currentTimestampGameDLL;
   }
 }
+
+
+
