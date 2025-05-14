@@ -347,6 +347,17 @@ bool copy_file(const char* fileName, const char* outputName, BumpAllocator* bump
 // #############################################################################
 //                           Math stuff
 // #############################################################################
+
+long long max(long long a, long long b)
+{
+  if(a > b)
+  {
+    return a;
+  }
+
+  return b;
+}
+
 struct Vec2
 {
   float x;
