@@ -2,18 +2,14 @@
 
 #include <stdio.h>
 
-
 // This is to get malloc
 #include <stdlib.h>
-
 
 // This is to get memset
 #include <string.h>
 
-
 // Used to get the edit timestamp of files
 #include <sys/stat.h>
-
 
 // Obvious right?
 #include <math.h>
@@ -21,7 +17,6 @@
 // #############################################################################
 //                           Defines
 // #############################################################################
-
 #ifdef _WIN32
 #define DEBUG_BREAK() __debugbreak()
 #define EXPORT_FN __declspec(dllexport)
@@ -39,11 +34,9 @@
 #define MB(x) ((unsigned long long)1024 * KB(x))
 #define GB(x) ((unsigned long long)1024 * MB(x))
 
-
 // #############################################################################
 //                           Logging
 // #############################################################################
-
 enum TextColor
 {  
   TEXT_COLOR_BLACK,
@@ -64,7 +57,6 @@ enum TextColor
   TEXT_COLOR_BRIGHT_WHITE,
   TEXT_COLOR_COUNT
 };
-
 
 template <typename ...Args>
 void _log(char* prefix, char* msg, TextColor textColor, Args... args)
@@ -112,7 +104,6 @@ void _log(char* prefix, char* msg, TextColor textColor, Args... args)
   }                               \
 }
 
-
 // #############################################################################
 //                           Array
 // #############################################################################
@@ -154,7 +145,6 @@ struct Array
     return count == N;
   }
 };
-
 
 // #############################################################################
 //                           Bump Allocator
@@ -202,7 +192,6 @@ char* bump_alloc(BumpAllocator* bumpAllocator, size_t size)
   return result;
 }
 
-
 // #############################################################################
 //                           File I/O
 // #############################################################################
@@ -213,7 +202,7 @@ long long get_timestamp(const char* file)
   return file_stat.st_mtime;
 }
 
-bool file_exists(const char* filePath)
+bool file_exists(char* filePath)
 {
   SM_ASSERT(filePath, "No filePath supplied!");
 
@@ -227,7 +216,7 @@ bool file_exists(const char* filePath)
   return true;
 }
 
-long get_file_size(const char* filePath)
+long get_file_size(char* filePath)
 {
   SM_ASSERT(filePath, "No filePath supplied!");
 
@@ -252,7 +241,7 @@ long get_file_size(const char* filePath)
 * memory and therefore want more control over where it 
 * is allocated
 */
-char* read_file(const char* filePath, int* fileSize, char* buffer)
+char* read_file(char* filePath, int* fileSize, char* buffer)
 {
   SM_ASSERT(filePath, "No filePath supplied!");
   SM_ASSERT(fileSize, "No fileSize supplied!");
@@ -278,7 +267,7 @@ char* read_file(const char* filePath, int* fileSize, char* buffer)
   return buffer;
 }
 
-char* read_file(const char* filePath, int* fileSize, BumpAllocator* bumpAllocator)
+char* read_file(char* filePath, int* fileSize, BumpAllocator* bumpAllocator)
 {
   char* file = nullptr;
   long fileSize2 = get_file_size(filePath);
@@ -293,7 +282,7 @@ char* read_file(const char* filePath, int* fileSize, BumpAllocator* bumpAllocato
   return file; 
 }
 
-void write_file(const char* filePath, char* buffer, int size)
+void write_file(char* filePath, char* buffer, int size)
 {
   SM_ASSERT(filePath, "No filePath supplied!");
   SM_ASSERT(buffer, "No buffer supplied!");
@@ -308,7 +297,7 @@ void write_file(const char* filePath, char* buffer, int size)
   fclose(file);
 }
 
-bool copy_file(const char* fileName, const char* outputName, char* buffer)
+bool copy_file(char* fileName, char* outputName, char* buffer)
 {
   int fileSize = 0;
   char* data = read_file(fileName, &fileSize, buffer);
@@ -324,7 +313,7 @@ bool copy_file(const char* fileName, const char* outputName, char* buffer)
   if(!result)
   {
     SM_ERROR("Failed opening File: %s", outputName);
-    return false; 
+    return false;
   }
   
   fclose(outputFile);
@@ -332,7 +321,7 @@ bool copy_file(const char* fileName, const char* outputName, char* buffer)
   return true;
 }
 
-bool copy_file(const char* fileName, const char* outputName, BumpAllocator* bumpAllocator)
+bool copy_file(char* fileName, char* outputName, BumpAllocator* bumpAllocator)
 {
   char* file = 0;
   long fileSize2 = get_file_size(fileName);
@@ -347,10 +336,18 @@ bool copy_file(const char* fileName, const char* outputName, BumpAllocator* bump
   return false;
 }
 
-
 // #############################################################################
 //                           Math stuff
 // #############################################################################
+int sign(int x)
+{
+  return (x >= 0)? 1 : -1;
+}
+
+float sign(float x)
+{
+  return (x >= 0.0f)? 1.0f : -1.0f;
+}
 
 long long max(long long a, long long b)
 {
@@ -362,6 +359,34 @@ long long max(long long a, long long b)
   return b;
 }
 
+float max(float a, float b)
+{
+  if(a > b)
+  {
+    return a;
+  }
+
+  return b;
+}
+
+float min(float a, float b)
+{
+  if(a < b)
+  {
+    return a;
+  }
+
+  return b;
+}
+
+float approach(float current, float target, float increase)
+{
+  if(current < target)
+  {
+    return min(current + increase, target);
+  }
+  return max(current - increase, target);
+}
 
 float lerp(float a, float b, float t)
 {
@@ -373,12 +398,12 @@ struct Vec2
   float x;
   float y;
 
-  Vec2 operator /(float scalar)
+  Vec2 operator/(float scalar)
   {
     return {x / scalar, y / scalar};
   }
 
-  Vec2 operator -(Vec2 other)
+  Vec2 operator-(Vec2 other)
   {
     return {x - other.x, y - other.y};
   }
@@ -389,18 +414,16 @@ struct IVec2
   int x;
   int y;
 
-  IVec2 operator -(IVec2 other)
+  IVec2 operator-(IVec2 other)
   {
     return {x - other.x, y - other.y};
   }
 };
 
-
 Vec2 vec_2(IVec2 v)
 {
   return Vec2{(float)v.x, (float)v.y};
 }
-
 
 Vec2 lerp(Vec2 a, Vec2 b, float t)
 {
@@ -494,3 +517,61 @@ Mat4 orthographic_projection(float left, float right, float top, float bottom)
 
   return result;
 }
+
+struct Rect
+{
+  Vec2 pos;
+  Vec2 size;
+};
+
+struct IRect
+{
+  IVec2 pos;
+  IVec2 size;
+};
+
+bool point_in_rect(Vec2 point, Rect rect)
+{
+  return (point.x >= rect.pos.x &&
+          point.x <= rect.pos.x + rect.size.x &&
+          point.y >= rect.pos.y &&
+          point.y <= rect.pos.y + rect.size.y);
+}
+
+bool point_in_rect(Vec2 point, IRect rect)
+{
+  return (point.x >= rect.pos.x &&
+          point.x <= rect.pos.x + rect.size.x &&
+          point.y >= rect.pos.y &&
+          point.y <= rect.pos.y + rect.size.y);
+}
+
+bool rect_collision(IRect a, IRect b)
+{
+  return a.pos.x < b.pos.x  + b.size.x && // Collision on Left of a and right of b
+         a.pos.x + a.size.x > b.pos.x  && // Collision on Right of a and left of b
+         a.pos.y < b.pos.y  + b.size.y && // Collision on Bottom of a and Top of b
+         a.pos.y + a.size.y > b.pos.y;    // Collision on Top of a and Bottom of b
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
